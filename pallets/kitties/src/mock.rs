@@ -2,7 +2,10 @@ use crate as pallet_kitties;
 use frame_support::traits::{ConstU16, ConstU64};
 use pallet_insecure_randomness_collective_flip;
 use sp_core::H256;
-use sp_runtime::traits::{BlakeTwo256, IdentityLookup};
+use sp_runtime::{
+	traits::{BlakeTwo256, IdentityLookup},
+	BuildStorage,
+};
 
 type Block = frame_system::mocking::MockBlock<Test>;
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
