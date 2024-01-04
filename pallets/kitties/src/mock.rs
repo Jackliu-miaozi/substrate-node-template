@@ -10,7 +10,6 @@ use sp_runtime::{
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
 
-// Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
 	pub enum Test where
 		Block = Block,
@@ -57,7 +56,6 @@ impl pallet_kitties::Config for Test {
 
 impl pallet_insecure_randomness_collective_flip::Config for Test {}
 
-// Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
 	let mut ext: sp_io::TestExternalities =
 		frame_system::GenesisConfig::default().build_storage::<Test>().unwrap().into();
