@@ -50,6 +50,7 @@ impl pallet_kitties::Config for Test {
 	type Randomness = Randomness;
 }
 impl pallet_insecure_randomness_collective_flip::Config for Test {}
+//因为这个函数不发出事件，实现它，但是不做任何事情，让内容默认。
 
 pub fn new_test_ext() -> sp_io::TestExternalities {
 	let mut ext: sp_io::TestExternalities =

@@ -93,3 +93,4 @@ fn it_works_for_transfer() {
 		assert_eq!(KittiesModule::kitty_owner(kitty_id), Some(account_id_2));
 	})
 }
+
