@@ -16,8 +16,6 @@ use sp_runtime::{OpaqueExtrinsic, SaturatedConversion};
 use std::{sync::Arc, time::Duration};
 
 /// Generates extrinsics for the `benchmark overhead` command.
-///
-/// Note: Should only be used for benchmarking.
 pub struct RemarkBuilder {
 	client: Arc<FullClient>,
 }
@@ -117,10 +115,9 @@ pub fn create_benchmark_extrinsic(
 		frame_system::CheckSpecVersion::<runtime::Runtime>::new(),
 		frame_system::CheckTxVersion::<runtime::Runtime>::new(),
 		frame_system::CheckGenesis::<runtime::Runtime>::new(),
-		frame_system::CheckEra::<runtime::Runtime>::from(sp_runtime::generic::Era::mortal(
-			period,
-			best_block.saturated_into(),
-		)),
+		frame_system::CheckEra::<runtime::Runtime>::from(
+			sp_runtime::generic::Era::mortal(period, best_block.saturated_into())
+		),
 		frame_system::CheckNonce::<runtime::Runtime>::from(nonce),
 		frame_system::CheckWeight::<runtime::Runtime>::new(),
 		pallet_transaction_payment::ChargeTransactionPayment::<runtime::Runtime>::from(0),

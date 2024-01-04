@@ -71,9 +71,7 @@ fn transfer_claim_works() {
 		let _ = PoeModule::create_claim(RuntimeOrigin::signed(1), claim.clone());
 
 		// transfer from origin 1 to recipient 2
-		assert_ok!(
-			PoeModule::transfer_claim(RuntimeOrigin::signed(1), claim.clone(), 2),
-		);
+		assert_ok!(PoeModule::transfer_claim(RuntimeOrigin::signed(1), claim.clone(), 2),);
 
 		assert_eq!(
 			Proofs::<Test>::get(&claim),
