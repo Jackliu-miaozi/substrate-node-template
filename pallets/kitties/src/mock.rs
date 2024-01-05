@@ -1,5 +1,6 @@
-use crate as pallet_template;
+use crate as pallet_kitties;
 use frame_support::traits::{ConstU16, ConstU64};
+use pallet_insecure_randomness_collective_flip;
 use sp_core::H256;
 use sp_runtime::{
 	testing::Header,
@@ -9,7 +10,6 @@ use sp_runtime::{
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
 
-// Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
 	pub enum Test where
 		Block = Block,
@@ -17,7 +17,8 @@ frame_support::construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
 		System: frame_system,
-		TemplateModule: pallet_template,
+		KittiesModule: pallet_kitties,
+		Randomness: pallet_insecure_randomness_collective_flip,
 	}
 );
 
@@ -48,12 +49,16 @@ impl frame_system::Config for Test {
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
-impl pallet_template::Config for Test {
+impl pallet_kitties::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
-	type WeightInfo = ();
+	type Randomness = Randomness;
 }
 
-// Build genesis storage according to the mock runtime.
+impl pallet_insecure_randomness_collective_flip::Config for Test {}
+
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	frame_system::GenesisConfig::default().build_storage::<Test>().unwrap().into()
+	let mut ext: sp_io::TestExternalities =
+		frame_system::GenesisConfig::default().build_storage::<Test>().unwrap().into();
+	ext.execute_with(|| System::set_block_number(1));
+	ext
 }
