@@ -103,6 +103,7 @@ pub mod pallet {
 
 			let mut kitty = Kitty::default();
 			let selector = Self::random_value(&who);
+
 			for i in 0..16 {
 				kitty.0[i] = (selector[i] & kitty_1.0[i]) | (!selector[i] & kitty_2.0[i]);
 			}
@@ -138,9 +139,6 @@ pub mod pallet {
 		fn get_next_id() -> Result<KittyId, DispatchError> {
 			NextKittyId::<T>::try_mutate(|next_id| -> Result<KittyId, DispatchError> {
 				let current_id = *next_id;
-				// *next_id =
-				// next_id.checked_add(1).ok_or::<DispatchError>(Error::<T>::InvalidKittyId.into())?
-				// ;
 				*next_id = next_id.checked_add(1).ok_or(Error::<T>::InvalidKittyId)?;
 				Ok(current_id)
 			})
