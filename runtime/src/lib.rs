@@ -36,6 +36,7 @@ pub use frame_support::{
 		IdentityFee, Weight,
 	},
 	StorageValue,
+	PalletId,
 };
 pub use frame_system::Call as SystemCall;
 pub use pallet_balances::Call as BalancesCall;
@@ -279,10 +280,18 @@ impl pallet_poe::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type MaxClaimLength = ConstU32<512>;
 }
+parameter_types!{
+	pub KittyPrice: Balance = EXISTENTIAL_DEPOSIT *10;
+	//EXISTENTIAL_DEPOSIT这是一个链上的常量，是最小的存活费用，这里是。这里取它的10倍。
+	pub KittyPalletId: PalletId = PalletId(*b"py/kitty");
+}
 
 impl pallet_kitties::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type Randomness = Random;
+	type Currency = Balances;
+	type KittyPrice = KittyPrice;
+	type PalletId = KittyPalletId;
 }
 
 impl pallet_insecure_randomness_collective_flip::Config for Runtime {}

@@ -21,12 +21,14 @@ frame-benchmarking = { version = "4.0.0-dev", default-features = false, optional
 frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
 frame-system = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
 sp-io = { version = "7.0.0", git = "https://github.com/paritytech/substrate.git", default-features = false, branch = "polkadot-v0.9.42" }
-
+sp-runtime = { version = "7.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
+# default-features = false 表示不使用默认的功能，而是使用 features 中指定的功能。
 [dev-dependencies]
+# 如果在dependencies中已经有依赖了，那么在dev-dependencies中就不需要再写一遍了。
 sp-core = { version = "7.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
-sp-runtime = { version = "7.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
 pallet-insecure-randomness-collective-flip = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
-
+# 如果你有一些只在开发时或者测试时需要的依赖，你应该将它们放在 dev-dependencies 中。
+# 如果你的依赖在运行时也需要，那么你应该将它们放在 dependencies 中。
 [features]
 default = ["std"]
 std = [
@@ -36,6 +38,13 @@ std = [
 	"frame-system/std",
 	"scale-info/std",
 	"sp-io/std",
+	"sp-runtime/std",
 ]
+# 特性是一种可以选择性启用或禁用的功能，它们可以改变库的功能或行为。
+# 在这个 Cargo.toml 文件中，定义了两个特性：default 和 std。
+# default 特性：当你依赖这个库但没有指定任何特性时，default 特性会被启用。在这个例子中，default 特性启用了 std 特性。
+# std 特性：这个特性启用了一些其他库的 std 特性。在 Rust 中，std 特性通常用于启用与 Rust 标准库的集成。在这个例子中，std 特性启用了 codec、frame-benchmarking、frame-support、frame-system、scale-info、sp-io 和 sp-runtime 库的 std 特性。
+# 注意，frame-benchmarking?/std 中的 ? 表示这个特性是可选的。如果 frame-benchmarking 库不可用，Cargo 会忽略这个特性，而不是报错。
+# 所以，这段代码的作用是定义了两个特性，default 和 std，并且启用了一些其他库的 std 特性。
 runtime-benchmarks = ["frame-benchmarking/runtime-benchmarks"]
 try-runtime = ["frame-support/try-runtime"]

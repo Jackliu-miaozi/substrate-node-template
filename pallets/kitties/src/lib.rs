@@ -14,7 +14,11 @@ pub mod pallet {
 	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
 
-	use frame_support::traits::{Currency, Randomness, ReservableCurrency};
+	use frame_support::traits::{Currency, Randomness, ExistenceRequirement};
+	use frame_support::PalletId;
+
+	use sp_runtime::traits::AccountIdConversion;
+
 	use sp_io::hashing::blake2_128;
 
 	pub type KittyId = u32;
@@ -34,9 +38,10 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 		type Randomness: Randomness<Self::Hash, Self::BlockNumber>;
-		type Currency: ReservableCurrency<Self::AccountId>;
+		type Currency: Currency<Self::AccountId>;
 		#[pallet::constant]
 		type KittyPrice: Get<BalanceOf<Self>>;
+		type PalletId: Get<PalletId>;
 	}
 
 	#[pallet::storage]
@@ -66,6 +71,7 @@ pub mod pallet {
 		KittyBred { who: T::AccountId, kitty_id: KittyId, kitty: Kitty },
 		KittyTransferred { who: T::AccountId, recipient: T::AccountId, kitty_id: KittyId },
 		KittyOnSale { who: T::AccountId, kitty_id: KittyId },
+		KittyBought { who: T::AccountId, current_owner: T::AccountId, kitty_id: KittyId },
 	}
 
 	#[pallet::error]
@@ -93,8 +99,9 @@ pub mod pallet {
 			let kitty = Kitty(Self::random_value(&who));
 
 			let price = T::KittyPrice::get();
-			T::Currency::reserve(&who, price)?;
-
+			// T::Currency::reserve(&who, price)?;
+			T::Currency::transfer(&who, &Self::get_account_id(), price, ExistenceRequirement::KeepAlive)?;
+ 
 			Kitties::<T>::insert(kitty_id, &kitty);
 			KittyOwner::<T>::insert(kitty_id, &who);
 
@@ -126,7 +133,9 @@ pub mod pallet {
 			}
 
 			let price = T::KittyPrice::get();
-			T::Currency::reserve(&who, price)?;
+			// T::Currency::reserve(&who, price)?;
+			T::Currency::transfer(&who, &Self::get_account_id(), price, ExistenceRequirement::KeepAlive)?;
+
 
 			Kitties::<T>::insert(kitty_id, &kitty);
 			KittyOwner::<T>::insert(kitty_id, &who);
@@ -175,28 +184,30 @@ pub mod pallet {
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn buy(origin: OriginFor<T>, kitty_id: KittyId) -> DispatchResult {
 			let who = ensure_signed(origin)?;
-			//who是带有copy属性的吗？是的。返回的类型是[u8,32]，是一个整数类型的数组，
+			//who是带有copy属性的吗？如果 Option 中的值是 Some，那么它就不是 Copy 的，即使 [u8; 32] 类型是 Copy 的。
 			// 所以是copy属性。
 			Self::kitties(kitty_id).ok_or(Error::<T>::InvalidKittyId)?;
 			//查看是否储存中有这个kitty_id，如果没有，返回错误。
-			let owner = Self::kitty_owner(kitty_id).ok_or(Error::<T>::NoOwner)?;
+			let current_owner = Self::kitty_owner(kitty_id).ok_or(Error::<T>::NoOwner)?;
 			//.ok_or()返回的是Some()里面的值，如果是None，就返回后面错误。NoOwner的意思是没有拥有者。
-			ensure!(owner == who, Error::<T>::AlreadyOwned);
+			ensure!(current_owner == who, Error::<T>::AlreadyOwned);
 			//判断是否是自己的猫，如果是，返回错误，已经拥有了猫。由于who带有copy属性，
 			// 所以不再写clone()。
 			ensure!(Self::kitty_on_sale(kitty_id).is_some(), Error::<T>::NotOnSale);
 			//判断是否在出售中，如果不是，返回错误，不在出售中。
 			let price = T::KittyPrice::get();
 			//获取价格
-			T::Currency::reserve(&who, price)?;
+			// T::Currency::reserve(&who, price)?;
 			//reserve的作用是什么？质押token，是system_support里面的Currency这个trait的函数。
-			KittyOwner::<T>::insert(kitty_id, who);
+			KittyOwner::<T>::insert(kitty_id, &who);
 			//把猫的拥有者改为买家。
 			<KittyOnSale<T>>::remove(kitty_id);
 			//移除出售状态
-			T::Currency::unreserve(&owner, price);
+			// T::Currency::unreserve(&current_owner, price);
 			//解除质押，因为是买家买了，所以是解除卖家的质押。
-			Self::deposit_event(Event::KittyBought { who, owner, kitty_id });
+			T::Currency::transfer(&who, &current_owner, price, ExistenceRequirement::KeepAlive)?;
+			//转账，把钱转给pallet，ExistenceRequirement::KeepAlive是什么意思？检查账户是否有最小余额，防止帐户被销户。
+			Self::deposit_event(Event::KittyBought { who, current_owner, kitty_id });
 			Ok(())
 		}
 	}
@@ -218,5 +229,13 @@ pub mod pallet {
 			);
 			payload.using_encoded(blake2_128)
 		}
+
+		fn get_account_id() -> T::AccountId {
+			T::PalletId::get().into_account_truncating()
+			//可能有长度上的不匹配
+			//所以用另一个种方法来匹配长度
+			//改.into_account()为
+		}
 	}
 }
+ 
