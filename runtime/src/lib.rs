@@ -35,8 +35,7 @@ pub use frame_support::{
 		},
 		IdentityFee, Weight,
 	},
-	StorageValue,
-	PalletId,
+	PalletId, StorageValue,
 };
 pub use frame_system::Call as SystemCall;
 pub use pallet_balances::Call as BalancesCall;
@@ -46,10 +45,10 @@ use pallet_transaction_payment::{ConstFeeMultiplier, CurrencyAdapter, Multiplier
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
 
+pub use pallet_kitties;
+pub use pallet_poe;
 /// Import the template pallet.
 pub use pallet_template;
-pub use pallet_poe;
-pub use pallet_kitties;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -280,7 +279,7 @@ impl pallet_poe::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type MaxClaimLength = ConstU32<512>;
 }
-parameter_types!{
+parameter_types! {
 	pub KittyPrice: Balance = EXISTENTIAL_DEPOSIT *10;
 	//EXISTENTIAL_DEPOSIT这是一个链上的常量，是最小的存活费用，这里是。这里取它的10倍。
 	pub KittyPalletId: PalletId = PalletId(*b"py/kitty");
