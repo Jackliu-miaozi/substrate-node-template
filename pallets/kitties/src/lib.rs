@@ -266,7 +266,7 @@ pub mod pallet {
 			let dna = Self::random_value(&who);
 			//通过pallet的辅助函数，random_value获取一个随机值。
 			let kitty = Kitty { dna, name };
-			//创建一个kitty，由Kitty结构题组成。
+			//创建一个kitty，由Kitty体组成。
 			let price = T::KittyPrice::get();
 			// T::Currency::reserve(&who, price)?;
 			//获取kitty的价格，这里kitty的价格是一个常量，常量是从parameter_types!
@@ -276,13 +276,19 @@ pub mod pallet {
 				&Self::get_account_id(),
 				price,
 				ExistenceRequirement::KeepAlive,
+				//转账发起时需要确定转账完成后，帐户是存活的，否则转账失败。
 			)?;
-
+			//currency是一个trait，里面有transfer方法，可以转账。
+			//从签名者转账到pallet的账户，转账的金额是price，转账的要求是KeepAlive。
+			//price是一个常量，所有的kitty都是一样的价格。
 			Kitties::<T>::insert(kitty_id, &kitty);
+			//把kitty的唯一标识和kitty的信息插入到kitties中。
 			KittyOwner::<T>::insert(kitty_id, &who);
-
+			//把kitty的唯一标识和kitty的拥有者插入到kittyowner中。
 			Self::deposit_event(Event::KittyCreated { who, kitty_id, kitty });
+			//触发一个kittycreated事件，这个事件是在pallet里面定义的。
 			Ok(())
+			//返回调用结果。
 		}
 
 		#[pallet::call_index(1)]
@@ -292,27 +298,33 @@ pub mod pallet {
 			kitty_id_1: KittyId,
 			kitty_id_2: KittyId,
 			name: [u8; 4],
+			//繁殖一个kitty，需要两个kitty作为父母，产生一个kitty作为孩子。
 		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
 			ensure!(kitty_id_1 != kitty_id_2, Error::<T>::SameKittyId);
-
+			//确保两个两个不是同一个kitty。
 			// let kitty_1 = Self::kitties(kitty_id_1).ok_or(Error::<T>::InvalidKittyId)?;
 			// let kitty_2 = Self::kitties(kitty_id_2).ok_or(Error::<T>::InvalidKittyId)?;
 
 			let kitty_id = Self::get_next_id()?;
+			//获取一个新的kitty_id，供孩子使用。
 
 			// let mut kitty = Kitty::default();
 			// let selector = Self::random_value(&who);
 
 			let dna = [0u8; 16];
+			//初始化dna，值为0，长度为16，类型为u8。
 			let kitty = Kitty { dna, name };
+			//创建一个kitty，由Kitty结构体组成。
 
 			// for i in 0..16 {
 			// 	kitty.0[i] = (selector[i] & kitty_1.0[i]) | (!selector[i] & kitty_2.0[i]);
 			// }
 
 			let price = T::KittyPrice::get();
+			//得到kitty的价格。
+
 			// T::Currency::reserve(&who, price)?;
 			T::Currency::transfer(
 				&who,
@@ -320,10 +332,12 @@ pub mod pallet {
 				price,
 				ExistenceRequirement::KeepAlive,
 			)?;
+			//转账
 
 			Kitties::<T>::insert(kitty_id, &kitty);
 			KittyOwner::<T>::insert(kitty_id, &who);
 			KittyParents::<T>::insert(kitty_id, (kitty_id_1, kitty_id_2));
+			//除了保存kitty的信息，还要保存kitty的父母信息。
 
 			Self::deposit_event(Event::KittyBred { who, kitty_id, kitty });
 			Ok(())
@@ -339,9 +353,13 @@ pub mod pallet {
 			let who = ensure_signed(origin)?;
 
 			ensure!(KittyOwner::<T>::contains_key(kitty_id), Error::<T>::InvalidKittyId);
+			//确保kitty_id是有效的。
+
 			ensure!(Self::kitty_owner(kitty_id) == Some(who.clone()), Error::<T>::NotOwner);
+			//确保调用者是kitty的拥有者。
 
 			KittyOwner::<T>::insert(kitty_id, &recipient);
+			//把kitty的拥有者改为接收者。
 
 			Self::deposit_event(Event::KittyTransferred { who, recipient, kitty_id });
 			Ok(())
@@ -357,10 +375,11 @@ pub mod pallet {
 			ensure!(Self::kitty_owner(kitty_id) == Some(who.clone()), Error::<T>::NotOwner);
 			//Self指的就是pallet，kitty_owner是getter函数，所以可以直接调用，并传入参数。
 			ensure!(Self::kitty_on_sale(kitty_id).is_some(), Error::<T>::AlreadyOnSale);
-
+			//使用kitty_on_sale函数,对储存库进行查询，看是否有这个kitty_id，如果有，返回错误。
 			<KittyOnSale<T>>::insert(kitty_id, ());
+			//把kitty_id插入到kitty_on_sale中。
+			//对kitty进行一个标记
 			Self::deposit_event(Event::KittyOnSale { who, kitty_id });
-
 			Ok(())
 		}
 
@@ -400,6 +419,7 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		fn get_next_id() -> Result<KittyId, DispatchError> {
 			NextKittyId::<T>::try_mutate(|next_id| -> Result<KittyId, DispatchError> {
+				//try_mutate 一个方法，用于尝试修改存储项的值。这个方法接收一个闭包作为参数，这个闭包接收存储项的当前值，并返回一个 Result。如果闭包返回 Ok，那么存储项的值将被修改为 Ok 中的值；如果闭包返回 Err，那么存储项的值将不会被修改，并且 try_mutate 方法将返回这个错误。
 				let current_id = *next_id;
 				*next_id = next_id.checked_add(1).ok_or(Error::<T>::InvalidKittyId)?;
 				Ok(current_id)
@@ -407,12 +427,21 @@ pub mod pallet {
 		}
 
 		fn random_value(sender: &T::AccountId) -> [u8; 16] {
+			//返回一个16位的随机值[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+			//u8范围是0-255。
 			let payload = (
 				T::Randomness::random_seed(),
+				//返回一个随机种子，这个随机种子是一个128位的值。
 				&sender,
+				//调用者
 				<frame_system::Pallet<T>>::extrinsic_index(),
+				//extrinsic_index 函数返回当前区块中的当前交易的索引。这个索引是从 0 开始的，并且每处理一个交易就会增加。没有就返回None。
+				//这个是查询了当前交易在区块中的index
+				//当前交易排在第几就返回几，顺序是从0开始的的。
 			);
 			payload.using_encoded(blake2_128)
+			//这个返回的是一个128位的hash值。
+			//useing_encoded首先将payload编码为字节，然后将字节传递给 blake2_128 函数，最后返回一个 128 位的哈希值。
 		}
 
 		fn get_account_id() -> T::AccountId {
