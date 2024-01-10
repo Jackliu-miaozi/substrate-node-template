@@ -419,7 +419,11 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		fn get_next_id() -> Result<KittyId, DispatchError> {
 			NextKittyId::<T>::try_mutate(|next_id| -> Result<KittyId, DispatchError> {
-				//try_mutate 一个方法，用于尝试修改存储项的值。这个方法接收一个闭包作为参数，这个闭包接收存储项的当前值，并返回一个 Result。如果闭包返回 Ok，那么存储项的值将被修改为 Ok 中的值；如果闭包返回 Err，那么存储项的值将不会被修改，并且 try_mutate 方法将返回这个错误。
+				//try_mutate
+				// 一个方法，用于尝试修改存储项的值。这个方法接收一个闭包作为参数，
+				// 这个闭包接收存储项的当前值，并返回一个 Result。如果闭包返回
+				// Ok，那么存储项的值将被修改为 Ok 中的值；如果闭包返回
+				// Err，那么存储项的值将不会被修改，并且 try_mutate 方法将返回这个错误。
 				let current_id = *next_id;
 				*next_id = next_id.checked_add(1).ok_or(Error::<T>::InvalidKittyId)?;
 				Ok(current_id)
@@ -435,13 +439,15 @@ pub mod pallet {
 				&sender,
 				//调用者
 				<frame_system::Pallet<T>>::extrinsic_index(),
-				//extrinsic_index 函数返回当前区块中的当前交易的索引。这个索引是从 0 开始的，并且每处理一个交易就会增加。没有就返回None。
-				//这个是查询了当前交易在区块中的index
+				//extrinsic_index 函数返回当前区块中的当前交易的索引。这个索引是从 0
+				// 开始的，并且每处理一个交易就会增加。没有就返回None。
+				// 这个是查询了当前交易在区块中的index
 				//当前交易排在第几就返回几，顺序是从0开始的的。
 			);
 			payload.using_encoded(blake2_128)
 			//这个返回的是一个128位的hash值。
-			//useing_encoded首先将payload编码为字节，然后将字节传递给 blake2_128 函数，最后返回一个 128 位的哈希值。
+			//useing_encoded首先将payload编码为字节，然后将字节传递给 blake2_128 函数，最后返回一个
+			// 128 位的哈希值。
 		}
 
 		fn get_account_id() -> T::AccountId {

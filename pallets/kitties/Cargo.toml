@@ -27,6 +27,10 @@ sp-runtime = { version = "7.0.0", default-features = false, git = "https://githu
 # 如果在dependencies中已经有依赖了，那么在dev-dependencies中就不需要再写一遍了。
 sp-core = { version = "7.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
 pallet-insecure-randomness-collective-flip = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
+pallet-balances = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
+frame-system = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
+
+
 # 如果你有一些只在开发时或者测试时需要的依赖，你应该将它们放在 dev-dependencies 中。
 # 如果你的依赖在运行时也需要，那么你应该将它们放在 dependencies 中。
 [features]

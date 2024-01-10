@@ -1,10 +1,17 @@
 //mock.rs创建一个模拟运行时环境。以便在不需要节点的情况下测试pallet。
 use crate as pallet_kitties;
+
 //为当前crate引用一个别名，crate用于引用当前crate。
 //as 用来创建别名。
-use frame_support::traits::{ConstU16, ConstU64， ConstU32};
+use frame_support::{
+	construct_runtime, parameter_types,
+	traits::{ConstU16, ConstU32, ConstU64, ConstU128},
+	PalletId,
+};
 //引入ConstU16和ConstU64,这两个是常量，ConstU16是一个u16类型的常量，ConstU64是一个u64类型的常量。
 use pallet_insecure_randomness_collective_flip;
+use pallet_balances;
+use frame_system;
 //pallet支持热插拔，这行代码引入了一个pallet他是一个不安全的随机数生成器。
 //他是subtrate内置的。
 //引入一个不安全的随机数生成器
@@ -28,6 +35,8 @@ use sp_runtime::{
 // 区块的 Merkle 树根
 //traits::BlakeTwo256是一个哈希算法，用于计算区块头的哈希值。
 //traits::IdentityLookup是一个用于查找账户的trait。
+type Balance = u128;
+const EXISTENTIAL_DEPOSIT: u128 = 500;
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 //创建了一个类型别名
@@ -36,7 +45,7 @@ type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
 //MockBlock 是一个用于测试的模拟区块类型
 //它包含了一个区块头和一个交易列表。
-frame_support::construct_runtime!(
+construct_runtime!(
 	//他定义了一个模拟运行时
 	pub enum Test where
 	//声明一个Test的枚举类型
@@ -56,13 +65,14 @@ frame_support::construct_runtime!(
 		//还有其他很多关键字
 		//没有指定的关键字类型会被约束为默认的类型。
 	{
-		System: frame_system,
 		//这是在运行时中添加 frame_system pallet 的地方。
 		//frame_system pallet 提供了一些基础的系统功能，例如区块和事件的处理。
 		KittiesModule: pallet_kitties,
 		//这是在运行时中添加 pallet_kitties pallet 的地方。
 		Randomness: pallet_insecure_randomness_collective_flip,
 		//运行时包含的所有 pallet 都必须在这里声明。
+		Balances: pallet_balances,
+		System: frame_system,
 	}
 	//这个运行时包含了 frame_system、pallet_kitties 和
 	// pallet_insecure_randomness_collective_flip 这三个 pallet。
@@ -93,18 +103,22 @@ impl frame_system::Config for Test {
 	type AccountId = u64;
 	//用于定义账户的类型。这里设置为 u64，表示账户的类型是 u64。
 	type Lookup = IdentityLookup<Self::AccountId>;
-	//用于定义账户查找的类型。这里设置为 IdentityLookup<Self::AccountId>，表示账户查找的类型是 IdentityLookup<Self::AccountId>。
+	//用于定义账户查找的类型。这里设置为 IdentityLookup<Self::AccountId>，表示账户查找的类型是
+	// IdentityLookup<Self::AccountId>。
 	type Header = Header;
 	//用于定义区块头的类型。这里设置为 Header，表示区块头的类型是 Header。
 	type RuntimeEvent = RuntimeEvent;
 	//用于定义运行时事件的类型。这里设置为 RuntimeEvent，表示运行时事件的类型是 RuntimeEvent。
 	//这个runtimeevent是在pallet_kitties中定义的。
 	type BlockHashCount = ConstU64<250>;
-	//用于定义区块哈希数量的类型。这里设置为 ConstU64<250>，表示区块哈希数量的类型是 ConstU64<250>。
-	//它定义了区块链保存的最近区块哈希的数量。
+	//用于定义区块哈希数量的类型。这里设置为 ConstU64<250>，表示区块哈希数量的类型是
+	// ConstU64<250>。 它定义了区块链保存的最近区块哈希的数量。
 	//ConstU64<250> 是一个常量类型，它表示一个固定的 u64 值，这里值是250。
-	//这行代码的意思是，区块链将保存最近的 250 个区块的哈希。这是为了在需要时可以查询这些区块的哈希，例如在验证交易时。但是，超过这个数量的旧区块哈希将被丢弃，以节省状态数据库的存储空间。
-	//这并不影响区块数据本身，区块数据通常会被完整地保存在区块链节点的本地存储中。只是你无法再通过哈希直接从状态数据库中查询到这些旧的区块。
+	//这行代码的意思是，区块链将保存最近的 250
+	// 个区块的哈希。这是为了在需要时可以查询这些区块的哈希，例如在验证交易时。但是，
+	// 超过这个数量的旧区块哈希将被丢弃，以节省状态数据库的存储空间。 这并不影响区块数据本身，
+	// 区块数据通常会被完整地保存在区块链节点的本地存储中。
+	// 只是你无法再通过哈希直接从状态数据库中查询到这些旧的区块。
 	type Version = ();
 	//用于定义运行时版本的类型。这里设置为 ()，表示运行时版本的类型是 ()。
 	type PalletInfo = PalletInfo;
@@ -112,7 +126,7 @@ impl frame_system::Config for Test {
 	//PalletInfo 是一个 trait，它定义了一些用于获取 pallet 信息的方法。
 	//todo 在lib.rs和mock.rs中都找不到PalletInfo的定义
 
-	type AccountData = ();
+	type AccountData = pallet_balances::AccountData<u128>;
 	//用于定义账户数据的类型。这里设置为 ()，表示使用默认的帐户数据类型。
 	type OnNewAccount = ();
 	//用于定义新账户创建时的操作。这里设置为 ()，表示不执行任何操作。
@@ -125,9 +139,14 @@ impl frame_system::Config for Test {
 	type OnSetCode = ();
 	//用于定义设置代码时的操作。这里设置为 ()，表示不执行任何操作。
 	type MaxConsumers = ConstU32<16>;
-	//用于定义最大消费者数量的类型。这里设置为 ConstU32<16>，表示最大消费者数量的类型是 ConstU32<16>。
-	//使用ConstU32<16>类型，的好处是，在编译时ConstU32 可以作为类型参数，而 16 不能。
-	//在 Rust 中，类型参数必须是类型，而不能是值。
+	//用于定义最大消费者数量的类型。这里设置为 ConstU32<16>，表示最大消费者数量的类型是
+	// ConstU32<16>。 使用ConstU32<16>类型，的好处是，在编译时ConstU32 可以作为类型参数，而 16
+	// 不能。 在 Rust 中，类型参数必须是类型，而不能是值。
+}
+
+parameter_types! {
+	pub KittyPrice: Balance = EXISTENTIAL_DEPOSIT *10;
+	pub KittyPalletId: PalletId = PalletId(*b"py/kitty");
 }
 
 impl pallet_kitties::Config for Test {
@@ -136,8 +155,10 @@ impl pallet_kitties::Config for Test {
 	//这个runtimeevent是在pallet_kitties中定义的。
 	type Randomness = Randomness;
 	//用于定义随机数生成器的类型。这里设置为 Randomness，表示随机数生成器的类型是 Randomness。
-	type Currency: Currency<Self::AccountId>;
-	//用于定义货币类型。这里设置为 Currency<Self::AccountId>，表示货币类型是 Currency<Self::AccountId>。
+	type Currency = Balances;
+	//用于定义货币类型。
+	type KittyPrice = KittyPrice;
+	type PalletId = KittyPalletId;
 }
 //这里为pallet_kitties的配置进行具体的实现
 //这里的= 左边的Randomness和Currency是在pallet_kitties中定义的。
@@ -145,6 +166,23 @@ impl pallet_kitties::Config for Test {
 impl pallet_insecure_randomness_collective_flip::Config for Test {}
 //这个pallet没有具体的关联类型，所以这里是空。
 //虽然是关联类型是空，但是也需要把它实现给Test。这个虚拟的runtime。
+
+
+impl pallet_balances::Config for Test {
+	type MaxLocks = ();
+	type MaxReserves = ();
+	type ReserveIdentifier = [u8; 8];
+	type Balance = u128;
+	type DustRemoval = ();
+	type RuntimeEvent = RuntimeEvent;
+	type ExistentialDeposit = ConstU128<1>;
+	type AccountStore = System;
+	type WeightInfo = ();
+	type HoldIdentifier = ();
+	type MaxHolds = ();
+	type FreezeIdentifier = ();
+	type MaxFreezes = ();
+}
 
 pub fn new_test_ext() -> sp_io::TestExternalities {
 	//sp_io::TestExternalities 是 Substrate 中用于模拟区块链环境的一个类型，
