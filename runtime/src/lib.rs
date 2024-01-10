@@ -284,7 +284,8 @@ parameter_types! {
 	//EXISTENTIAL_DEPOSIT这是一个链上的常量，是最小的存活费用，这里是。这里取它的10倍。
 	pub KittyPalletId: PalletId = PalletId(*b"py/kitty");
 }
-//pallet 的配置通常需要一些常量参数。这些参数可以在编译时确定，但是在运行时不能修改。parameter_types! 宏就是用来定义这些参数的。
+//pallet 的配置通常需要一些常量参数。这些参数可以在编译时确定，但是在运行时不能修改。
+// parameter_types! 宏就是用来定义这些参数的。
 
 impl pallet_kitties::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;

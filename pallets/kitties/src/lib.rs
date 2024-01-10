@@ -24,7 +24,8 @@ pub mod pallet {
 	use frame_support::{
 		traits::{Currency, ExistenceRequirement, Randomness, StorageVersion},
 		PalletId,
-		//PalletId 是一个用于标识 pallet 的类型。它是一个 8 字节的数组，通常用于生成一个独特的账户 ID，这个账户 ID 可以被 pallet 用于作为其资产的拥有者。
+		//PalletId 是一个用于标识 pallet 的类型。它是一个 8 字节的数组，通常用于生成一个独特的账户
+		// ID，这个账户 ID 可以被 pallet 用于作为其资产的拥有者。
 	};
 	//除了pallet_prelude的所有内容还需要导入以上一些内容
 	use sp_runtime::traits::AccountIdConversion;
@@ -123,8 +124,8 @@ pub mod pallet {
 		type KittyPrice: Get<BalanceOf<Self>>;
 		//KittyPrice是一个可以获取帐户余额类型值的常量。
 		//这里的self是指实现了frame_system::Config这个trait的类型。
-		//这个是类型，它实现了一个Get的trait。可以通过get()方法取得一个值，这个值的类型是Balance。 ——周俊老师
-		//todo 注意这里仅仅是一个类型声明，规定了kittyprice的类型，赋值在runtime中：
+		//这个是类型，它实现了一个Get的trait。可以通过get()方法取得一个值，这个值的类型是Balance。
+		// ——周俊老师 todo 注意这里仅仅是一个类型声明，规定了kittyprice的类型，赋值在runtime中：
 		//todo 在runtime的 parameter_types! 中赋值。
 		type PalletId: Get<PalletId>;
 		//PalletId是一个可以获取PalletId类型值的常量。
@@ -222,14 +223,18 @@ pub mod pallet {
 	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {
 		//todo 为什么这里要加上BlockNumberFor<T>？
 		//BlockNumberFor<T> 被用作 Hooks trait 的类型参数。
-		//Hooks trait 中的一些钩子函数可能需要使用到区块编号。例如，on_initialize 和 on_finalize 钩子函数都会接收一个区块编号作为参数，这个区块编号表示当前正在处理的区块。
-		//虽然 on_runtime_upgrade 钩子函数并没有直接使用到区块编号，但是 Hooks<BlockNumberFor<T>> 的写法是为了满足 Hooks trait 的类型签名
+		//Hooks trait 中的一些钩子函数可能需要使用到区块编号。例如，on_initialize 和 on_finalize
+		// 钩子函数都会接收一个区块编号作为参数，这个区块编号表示当前正在处理的区块。
+		// 虽然 on_runtime_upgrade 钩子函数并没有直接使用到区块编号，但是 Hooks<BlockNumberFor<T>>
+		// 的写法是为了满足 Hooks trait 的类型签名
 		//
 		//Hooks是一个trait，它定义了一些钩子函数，这些钩子函数会在特定的时机被自动调用。
 		//BlockNumberFor<T>是一个类型，它表示区块号。
 		//并不是Hooks都需要BlockNumberFor<T>的类型约束。
 		fn on_runtime_upgrade() -> Weight {
-			//每个交易或操作都有一个权重（Weight），这个权重表示这个交易或操作的复杂性或需要的计算资源。权重用于限制区块中可以包含的交易数量，以防止区块过大导致网络拥堵
+			//每个交易或操作都有一个权重（Weight），
+			// 这个权重表示这个交易或操作的复杂性或需要的计算资源。
+			// 权重用于限制区块中可以包含的交易数量，以防止区块过大导致网络拥堵
 			migrations::v1::migrate::<T>()
 			//TODO 为什么要返回一个权重？
 		}
@@ -239,7 +244,8 @@ pub mod pallet {
 	// on_initialize：在每个区块开始处理之前调用。
 	// on_finalize：在每个区块处理完成之后调用。
 	// on_runtime_upgrade：在运行时升级时调用。
-	// 在 runtime 升级时，执行 migrations::v1::migrate::<T>() 函数进行数据迁移，并返回数据迁移的权重。
+	// 在 runtime 升级时，执行 migrations::v1::migrate::<T>()
+	// 函数进行数据迁移，并返回数据迁移的权重。
 
 	#[pallet::call]
 	//宏用于标记一个 impl 块，这个 impl 块中定义了 pallet 的调用接口。
@@ -255,15 +261,16 @@ pub mod pallet {
 			let who = ensure_signed(origin)?;
 			//确保调用者对交易已经签名，返回的是一个AccountId类型的值。
 			let kitty_id = Self::get_next_id()?;
-			//通过pallet的辅助函数，get_next_id获取下一个id。 ？ 返回一个ok包裹的内部的值，不是ok（**）。
+			//通过pallet的辅助函数，get_next_id获取下一个id。 ？
+			// 返回一个ok包裹的内部的值，不是ok（**）。
 			let dna = Self::random_value(&who);
 			//通过pallet的辅助函数，random_value获取一个随机值。
 			let kitty = Kitty { dna, name };
 			//创建一个kitty，由Kitty结构题组成。
 			let price = T::KittyPrice::get();
 			// T::Currency::reserve(&who, price)?;
-			//获取kitty的价格，这里kitty的价格是一个常量，常量是从parameter_types! 中定义的，因为在类型声明时
-			//是Get<BalanceOf<Self>>，get给了kittyprice一个get方法。
+			//获取kitty的价格，这里kitty的价格是一个常量，常量是从parameter_types!
+			// 中定义的，因为在类型声明时 是Get<BalanceOf<Self>>，get给了kittyprice一个get方法。
 			T::Currency::transfer(
 				&who,
 				&Self::get_account_id(),
