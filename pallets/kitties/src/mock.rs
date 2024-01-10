@@ -52,8 +52,7 @@ impl frame_system::Config for Test {
 impl pallet_kitties::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type Randomness = Randomness;
-
-
+	type Currency: Currency<Self::AccountId>;
 }
 
 impl pallet_insecure_randomness_collective_flip::Config for Test {}

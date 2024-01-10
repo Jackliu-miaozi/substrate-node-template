@@ -20,7 +20,6 @@ use frame_support::{
 	traits::GetStorageVersion, weights::Weight, Blake2_128Concat,
 };
 
-
 #[derive(
 	Encode, Decode, Clone, Copy, RuntimeDebug, PartialEq, Eq, Default, TypeInfo, MaxEncodedLen,
 )]
@@ -41,7 +40,7 @@ pub fn migrate<T: Config>() -> Weight {
 	for (index, kitty) in
 		storage_key_iter::<KittyId, OldKitty, Blake2_128Concat>(moudle, item).drain()
 	{
-		let new_kitty = Kitty { dna: kitty.0, name: *b"abcd", };
+		let new_kitty = Kitty { dna: kitty.0, name: *b"abcd" };
 		Kitties::<T>::insert(index, &new_kitty);
 	}
 	Weight::zero()
