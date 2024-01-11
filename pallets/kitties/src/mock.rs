@@ -5,12 +5,12 @@ use crate as pallet_kitties;
 //as 用来创建别名。
 use frame_support::{
 	construct_runtime, parameter_types,
-	traits::{ConstU16, ConstU32, ConstU64, ConstU128},
+	traits::{ConstU128, ConstU16, ConstU32, ConstU64},
 	PalletId,
 };
 //引入ConstU16和ConstU64,这两个是常量，ConstU16是一个u16类型的常量，ConstU64是一个u64类型的常量。
-use pallet_insecure_randomness_collective_flip;
 use pallet_balances;
+use pallet_insecure_randomness_collective_flip;
 // use frame_system;
 //pallet支持热插拔，这行代码引入了一个pallet他是一个不安全的随机数生成器。
 //他是subtrate内置的。
@@ -166,7 +166,6 @@ impl pallet_kitties::Config for Test {
 impl pallet_insecure_randomness_collective_flip::Config for Test {}
 //这个pallet没有具体的关联类型，所以这里是空。
 //虽然是关联类型是空，但是也需要把它实现给Test。这个虚拟的runtime。
-
 
 impl pallet_balances::Config for Test {
 	type MaxLocks = ();
