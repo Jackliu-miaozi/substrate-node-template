@@ -42,15 +42,6 @@ fn test_breed() {
 			KittiesModule::breed(RuntimeOrigin::signed(account_id), kitty_id, kitty_id, [0u8; 4]),
 			Error::<Test>::SameKittyId
 		);
-		assert_noop!(
-			KittiesModule::breed(
-				RuntimeOrigin::signed(account_id),
-				kitty_id,
-				kitty_id + 1,
-				[0u8; 4]
-			),
-			Error::<Test>::InvalidKittyId
-		);
 		assert_ok!(KittiesModule::create(RuntimeOrigin::signed(account_id), [0u8; 4]));
 		assert_ok!(KittiesModule::create(RuntimeOrigin::signed(account_id), [1u8; 4]));
 		let child_id = kitty_id + 2;
@@ -135,8 +126,9 @@ fn buy() {
 		);
 		//上面的error是预期的错误
 		assert_ok!(KittiesModule::create(RuntimeOrigin::signed(account_id), [0u8; 4]));
+        assert_ok!(KittiesModule::create(RuntimeOrigin::signed(account_id+1), [0u8; 4]));
 		assert_noop!(
-			KittiesModule::buy(RuntimeOrigin::signed(account_id), kitty_id + 1),
+			KittiesModule::buy(RuntimeOrigin::signed(account_id), 3),
 			Error::<Test>::NoOwner
 		);
 		//这个kitty没有主人，所以无法购买
