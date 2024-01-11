@@ -100,7 +100,7 @@ impl frame_system::Config for Test {
 	//用于定义哈希值的类型。这里设置为 H256，表示哈希值的类型是 H256。
 	type Hashing = BlakeTwo256;
 	//用于定义哈希算法的类型。这里设置为 BlakeTwo256，表示哈希算法的类型是 BlakeTwo256。
-	type AccountId = u64;
+	type AccountId = u32;
 	//用于定义账户的类型。这里设置为 u64，表示账户的类型是 u64。
 	type Lookup = IdentityLookup<Self::AccountId>;
 	//用于定义账户查找的类型。这里设置为 IdentityLookup<Self::AccountId>，表示账户查找的类型是

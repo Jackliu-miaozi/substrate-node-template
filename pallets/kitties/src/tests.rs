@@ -1,11 +1,13 @@
 use crate::{mock::*, Error, Event};
-use frame_support::{assert_noop, assert_ok};
+use frame_support::{assert_noop, assert_ok, traits::Currency};
+//jin
 
 #[test]
 fn test_create() {
 	new_test_ext().execute_with(|| {
 		let kitty_id = 0;
 		let account_id = 1;
+		Balances::make_free_balance_be(&account_id, 100000000000000);
 		assert_eq!(KittiesModule::next_kitty_id(), kitty_id);
 		assert_ok!(KittiesModule::create(RuntimeOrigin::signed(account_id), [0u8; 4]));
 		assert_eq!(KittiesModule::next_kitty_id(), kitty_id + 1);
@@ -35,7 +37,7 @@ fn test_breed() {
 	new_test_ext().execute_with(|| {
 		let account_id = 1;
 		let kitty_id = 0;
-
+		Balances::make_free_balance_be(&account_id, 100000000000000);
 		assert_noop!(
 			KittiesModule::breed(RuntimeOrigin::signed(account_id), kitty_id, kitty_id, [0u8; 4]),
 			Error::<Test>::SameKittyId
@@ -76,6 +78,7 @@ fn test_transfer() {
 		let account_id = 1;
 		let kitty_id = 0;
 		let recipient = 2;
+		Balances::make_free_balance_be(&account_id, 100000000000000);
 		assert_ok!(KittiesModule::create(RuntimeOrigin::signed(account_id), [0u8; 4]));
 		assert_eq!(KittiesModule::kitty_owner(kitty_id), Some(account_id));
 		assert_noop!(
@@ -100,6 +103,7 @@ fn test_sale() {
 	new_test_ext().execute_with(|| {
 		let account_id = 1;
 		let kitty_id = 0;
+		Balances::make_free_balance_be(&account_id, 100000000000000);
 		assert_ok!(KittiesModule::create(RuntimeOrigin::signed(account_id), [0u8; 4]));
 		assert_eq!(KittiesModule::kitty_owner(kitty_id), Some(account_id));
 		//使用数据库调用函数返回的结果是用some包裹的。否则是none。
@@ -123,6 +127,8 @@ fn buy() {
 	new_test_ext().execute_with(|| {
 		let account_id = 1;
 		let kitty_id = 0;
+		Balances::make_free_balance_be(&account_id, 100000000000000);
+		Balances::make_free_balance_be(&(account_id + 1), 100000000000000);
 		assert_noop!(
 			KittiesModule::buy(RuntimeOrigin::signed(account_id), kitty_id),
 			Error::<Test>::InvalidKittyId
