@@ -11,7 +11,7 @@ use frame_support::{
 //引入ConstU16和ConstU64,这两个是常量，ConstU16是一个u16类型的常量，ConstU64是一个u64类型的常量。
 use pallet_insecure_randomness_collective_flip;
 use pallet_balances;
-use frame_system;
+// use frame_system;
 //pallet支持热插拔，这行代码引入了一个pallet他是一个不安全的随机数生成器。
 //他是subtrate内置的。
 //引入一个不安全的随机数生成器
@@ -170,18 +170,31 @@ impl pallet_insecure_randomness_collective_flip::Config for Test {}
 
 impl pallet_balances::Config for Test {
 	type MaxLocks = ();
+	//一个帐户可以拥有的最大锁定数量
 	type MaxReserves = ();
+	//一个帐户可以拥有的最大储备数量
 	type ReserveIdentifier = [u8; 8];
+	//用于定义储备标识符的类型。这里设置为 [u8; 8]，表示储备标识符的类型是 [u8; 8]。
 	type Balance = u128;
+	//余额的类型
 	type DustRemoval = ();
+	//用于定义尘埃移除的类型。这里设置为 ()，表示不执行尘埃移除。保持帐户活跃的最小余额。
 	type RuntimeEvent = RuntimeEvent;
+	//用于定义运行时事件的类型。这里设置为 RuntimeEvent，表示运行时事件的类型是 RuntimeEvent。
 	type ExistentialDeposit = ConstU128<1>;
+	//最小存款数量是1
 	type AccountStore = System;
+	//定义了账户存储的类型。
 	type WeightInfo = ();
+	//定义了权重信息的类型。
 	type HoldIdentifier = ();
+	//定义了持有标识符的类型。
 	type MaxHolds = ();
+	//定义了一个账户可以拥有的最大持有数量。
 	type FreezeIdentifier = ();
+	//定义了冻结标识符的类型。
 	type MaxFreezes = ();
+	//定义了一个账户可以拥有的最大冻结数量。
 }
 
 pub fn new_test_ext() -> sp_io::TestExternalities {
