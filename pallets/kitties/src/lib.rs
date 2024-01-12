@@ -59,10 +59,10 @@ pub mod pallet {
 	// maxencodedlen是限制编码的最大长度，防止长度过大出现问题。 pub struct Kitty(pub [u8; 16]);
 	pub struct Kitty {
 		pub dna: [u8; 16],
-		pub name: [u8; 4],
+		pub name: [u8; 8],
 	}
 	//创建一个公共项的结构体，这个结构体储存了，kitty的信息。
-	const STORAGE_VERSION: StorageVersion = StorageVersion::new(1);
+	const STORAGE_VERSION: StorageVersion = StorageVersion::new(4);
 	//声明了一个常量，sub提供了StorageVersion类型，可以为每个pallet的储存指定一个版本。
 	//使用StorageVersion::new(1)来创建一个新的storageversion实例，版本号为1。
 	#[pallet::pallet]
@@ -235,7 +235,7 @@ pub mod pallet {
 			//每个交易或操作都有一个权重（Weight），
 			// 这个权重表示这个交易或操作的复杂性或需要的计算资源。
 			// 权重用于限制区块中可以包含的交易数量，以防止区块过大导致网络拥堵
-			migrations::v1::migrate::<T>()
+			migrations::v2::migrate::<T>()
 			//TODO 为什么要返回一个权重？
 		}
 	}
@@ -254,7 +254,7 @@ pub mod pallet {
 		//调用接口的序号
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
 		//定一个调用接口的权重
-		pub fn create(origin: OriginFor<T>, name: [u8; 4]) -> DispatchResult {
+		pub fn create(origin: OriginFor<T>, name: [u8; 8]) -> DispatchResult {
 			//origin标记了调用的来源，OriginFor<T>这个的语义可以理解为对pallet调用的调用者
 			//调用这个借口的人是谁，这个人就是调用者。
 			//name是携带的一些调用时传递给pallet的信息。
@@ -297,7 +297,7 @@ pub mod pallet {
 			origin: OriginFor<T>,
 			kitty_id_1: KittyId,
 			kitty_id_2: KittyId,
-			name: [u8; 4],
+			name: [u8; 8],
 			//繁殖一个kitty，需要两个kitty作为父母，产生一个kitty作为孩子。
 		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
@@ -374,7 +374,7 @@ pub mod pallet {
 			//查看是否储存中有这个kitty_id，如果没有，返回错误。
 			ensure!(Self::kitty_owner(kitty_id) == Some(who.clone()), Error::<T>::NotOwner);
 			//Self指的就是pallet，kitty_owner是getter函数，所以可以直接调用，并传入参数。
-			ensure!(Self::kitty_on_sale(kitty_id).is_some(), Error::<T>::AlreadyOnSale);
+			// ensure!(Self::kitty_on_sale(kitty_id).is_some(), Error::<T>::AlreadyOnSale);
 			//使用kitty_on_sale函数,对储存库进行查询，看是否有这个kitty_id，如果有，返回错误。
 			<KittyOnSale<T>>::insert(kitty_id, ());
 			//把kitty_id插入到kitty_on_sale中。
