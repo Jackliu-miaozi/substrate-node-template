@@ -16,8 +16,6 @@ use sp_runtime::{OpaqueExtrinsic, SaturatedConversion};
 use std::{sync::Arc, time::Duration};
 
 /// Generates extrinsics for the `benchmark overhead` command.
-///
-/// Note: Should only be used for benchmarking.
 pub struct RemarkBuilder {
 	client: Arc<FullClient>,
 }
@@ -82,8 +80,11 @@ impl frame_benchmarking_cli::ExtrinsicBuilder for TransferKeepAliveBuilder {
 		let extrinsic: OpaqueExtrinsic = create_benchmark_extrinsic(
 			self.client.as_ref(),
 			acc,
-			BalancesCall::transfer_keep_alive { dest: self.dest.clone().into(), value: self.value }
-				.into(),
+			BalancesCall::transfer_keep_alive {
+				dest: self.dest.clone().into(),
+				value: self.value.into(),
+			}
+			.into(),
 			nonce,
 		)
 		.into();
@@ -114,10 +115,9 @@ pub fn create_benchmark_extrinsic(
 		frame_system::CheckSpecVersion::<runtime::Runtime>::new(),
 		frame_system::CheckTxVersion::<runtime::Runtime>::new(),
 		frame_system::CheckGenesis::<runtime::Runtime>::new(),
-		frame_system::CheckEra::<runtime::Runtime>::from(sp_runtime::generic::Era::mortal(
-			period,
-			best_block.saturated_into(),
-		)),
+		frame_system::CheckEra::<runtime::Runtime>::from(
+			sp_runtime::generic::Era::mortal(period, best_block.saturated_into())
+		),
 		frame_system::CheckNonce::<runtime::Runtime>::from(nonce),
 		frame_system::CheckWeight::<runtime::Runtime>::new(),
 		pallet_transaction_payment::ChargeTransactionPayment::<runtime::Runtime>::from(0),
@@ -140,10 +140,10 @@ pub fn create_benchmark_extrinsic(
 	let signature = raw_payload.using_encoded(|e| sender.sign(e));
 
 	runtime::UncheckedExtrinsic::new_signed(
-		call,
+		call.clone(),
 		sp_runtime::AccountId32::from(sender.public()).into(),
-		runtime::Signature::Sr25519(signature),
-		extra,
+		runtime::Signature::Sr25519(signature.clone()),
+		extra.clone(),
 	)
 }
 

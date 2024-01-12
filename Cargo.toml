@@ -2,7 +2,10 @@
 members = [
     "node",
     "pallets/template",
+    "pallets/kitties",
+    "pallets/poe",
     "runtime",
 ]
+resolver = "2"
 [profile.release]
 panic = "unwind"
