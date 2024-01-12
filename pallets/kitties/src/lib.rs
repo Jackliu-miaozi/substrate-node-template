@@ -235,6 +235,10 @@ pub mod pallet {
 			//每个交易或操作都有一个权重（Weight），
 			// 这个权重表示这个交易或操作的复杂性或需要的计算资源。
 			// 权重用于限制区块中可以包含的交易数量，以防止区块过大导致网络拥堵
+			STORAGE_VERSION.put::<Pallet<T>>();
+			//不仅要new一个storage_version，还要把它put一下。
+			//put 是 StorageVersion 的一个方法，它接受一个新的存储版本，并将其保存到存储中。
+			//StorageVersion，它用于存储 pallet 的存储版本。
 			migrations::v2::migrate::<T>()
 			//TODO 为什么要返回一个权重？
 		}
