@@ -108,36 +108,11 @@ pub mod pallet {
 	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {
 		fn offchain_worker(block_number: T::BlockNumber) {
 			log::info!("OCW ==> Hello World from offchain workers!: {:?}", block_number);
-			if block_number % 2u32.into() != Zero::zero() {
-				// odd
 				let key = Self::derive_key(block_number);
 				let val_ref = StorageValueRef::persistent(&key);
-
-				//  get a local random value
-				let random_slice = sp_io::offchain::random_seed();
-
-				//  get a local timestamp
-				let timestamp_u64 = sp_io::offchain::timestamp().unix_millis();
-
-				// combine to a tuple and print it
-				let value = (random_slice, timestamp_u64);
+				let value = 01u8;
 				log::info!("OCW ==> in odd block, value to write: {:?}", value);
-
-				//  write or mutate tuple content to key
 				val_ref.set(&value);
-			} else {
-				// even
-				let key = Self::derive_key(block_number - 1u32.into());
-				let mut val_ref = StorageValueRef::persistent(&key);
-
-				// get from db by key
-				if let Ok(Some(value)) = val_ref.get::<([u8; 32], u64)>() {
-					// print values
-					log::info!("OCW ==> in even block, value read: {:?}", value);
-					// delete that key
-					val_ref.clear();
-				}
-			}
 			log::info!("OCW ==> Leave from offchain workers!: {:?}", block_number);
 		}
 	}
