@@ -1,161 +1,112 @@
-# Substrate Node Template
+# OneBlock+ 进阶课程作业
 
-A fresh [Substrate](https://substrate.io/) node, ready for hacking :rocket:
+## 第一节课作业
 
-A standalone version of this template is available for each release of Polkadot in the [Substrate Developer Hub Parachain Template](https://github.com/substrate-developer-hub/substrate-parachain-template/) repository.
-The parachain template is generated directly at each Polkadot release branch from the [Node Template in Substrate](https://github.com/paritytech/substrate/tree/master/bin/node-template) upstream
+### 作业1
 
-It is usually best to use the stand-alone version to start a new project.
-All bugs, suggestions, and feature requests should be made upstream in the [Substrate](https://github.com/paritytech/substrate/tree/master/bin/node-template) repository.
+编写存证模块的单元测试代码，包括创建存证的测试用例
+撤销存证的测试用例
+转移存证的测试用例
 
-## Getting Started
+### 答案：
+[pallets/poe/src/tests.rs](./pallets/poe/src/tests.rs)
 
-Depending on your operating system and Rust version, there might be additional packages required to compile this template.
-Check the [Install](https://docs.substrate.io/install/) instructions for your platform for the most common dependencies.
-Alternatively, you can use one of the [alternative installation](#alternatives-installations) options.
+### 截图：
+![tests](./img/lesson01_01.png)
 
-### Build
+## 第二节课作业
 
-Use the following command to build the node without launching it:
+### 作业1
 
-```sh
-cargo build --release
-```
+跟着视频,完成Kitties的开发
+* Pallet编译成功
+* 单元测试通过
+* 加入kitties pallet到runtime中,node可以编译通过
+* node节点可以正常启动
 
-### Embedded Docs
+### 答案：
+[pallets/kitties](./pallets/kitties)
 
-After you build the project, you can use the following command to explore its parameters and subcommands:
+### 截图：
+![tests](./img/lesson02_01.png)
+![tests](./img/lesson02_02.png)
 
-```sh
-./target/release/node-template -h
-```
+## 第三节课作业
 
-You can generate and view the [Rust Docs](https://doc.rust-lang.org/cargo/commands/cargo-doc.html) for this template with this command:
+### 作业1
 
-```sh
-cargo +nightly doc --open
-```
+跟着视频,完成Kitties pallet
+* 增加 Currency sale/buy 方法后 Pallet 可以编译
+* 增加新的测试用例
+* 修改 runtime,node可以编译通过
+* node节点可以启动
 
-### Single-Node Development Chain
+### 答案：
+[pallets/kitties](./pallets/kitties)
 
-The following command starts a single-node development chain that doesn't persist state:
+### 截图：
+![tests](./img/lesson03_01.png)
+![tests](./img/lesson03_02.png)
+![tests](./img/lesson03_03.png)
 
-```sh
-./target/release/node-template --dev
-```
+### 作业2
 
-To purge the development chain's state, run the following command:
+Runtime 升级
+* Kitties palletv2，将 kitties name 扩充到8个字节
+* 完成 migration 代码
+* 验证从 vO-v2,v1-v2的升级路径
 
-```sh
-./target/release/node-template purge-chain --dev
-```
+### 答案：
+[pallets/kitties](./pallets/kitties)
 
-To start the development chain with detailed logging, run the following command:
+### 截图：
+![tests](./img/lesson03_04.png)
 
-```sh
-RUST_BACKTRACE=1 ./target/release/node-template -ldebug --dev
-```
+## 第四节课作业
 
-Development chains:
+### 作业
 
-- Maintain state in a `tmp` folder while the node is running.
-- Use the **Alice** and **Bob** accounts as default validator authorities.
-- Use the **Alice** account as the default `sudo` account.
-- Are preconfigured with a genesis state (`/node/src/chain_spec.rs`) that includes several prefunded development accounts.
+* 在Offchain Worker中，使用Offchain Indexing特性实现从链上向Offchain Storage中写入数据
+* 使用 js sdk 从浏览器frontend获取到前面写入Offchain Storage的数据
+* 设计一个场景实例（比如获取一个外部的价格信息），实现从OCW中向链上发起带签名负载的不签名交易，并在Runtime中正确处理
 
+### 答案：
 
-To persist chain state between runs, specify a base path by running a command similar to the following:
+后端代码 [pallets/kuaidi100](./pallets/kuaidi100)
 
-```sh
-// Create a folder to use as the db base path
-$ mkdir my-chain-state
+前端代码 [front_end](./front_end)
+### 截图：
+![tests](./img/lesson04_01.png)
 
-// Use of that folder to store the chain state
-$ ./target/release/node-template --dev --base-path ./my-chain-state/
+![tests](./img/lesson04_02.png)
 
-// Check the folder structure created inside the base path after running the chain
-$ ls ./my-chain-state
-chains
-$ ls ./my-chain-state/chains/
-dev
-$ ls ./my-chain-state/chains/dev
-db keystore network
-```
-
-### Connect with Polkadot-JS Apps Front-End
-
-After you start the node template locally, you can interact with it using the hosted version of the [Polkadot/Substrate Portal](https://polkadot.js.org/apps/#/explorer?rpc=ws://localhost:9944) front-end by connecting to the local node endpoint.
-A hosted version is also available on [IPFS (redirect) here](https://dotapps.io/) or [IPNS (direct) here](ipns://dotapps.io/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer).
-You can also find the source code and instructions for hosting your own instance on the [polkadot-js/apps](https://github.com/polkadot-js/apps) repository.
-
-### Multi-Node Local Testnet
-
-If you want to see the multi-node consensus algorithm in action, see [Simulate a network](https://docs.substrate.io/tutorials/get-started/simulate-network/).
-
-## Template Structure
-
-A Substrate project such as this consists of a number of components that are spread across a few directories.
-
-### Node
-
-A blockchain node is an application that allows users to participate in a blockchain network.
-Substrate-based blockchain nodes expose a number of capabilities:
-
-- Networking: Substrate nodes use the [`libp2p`](https://libp2p.io/) networking stack to allow the
-  nodes in the network to communicate with one another.
-- Consensus: Blockchains must have a way to come to [consensus](https://docs.substrate.io/fundamentals/consensus/) on the state of the network.
-  Substrate makes it possible to supply custom consensus engines and also ships with several consensus mechanisms that have been built on top of [Web3 Foundation research](https://research.web3.foundation/en/latest/polkadot/NPoS/index.html).
-- RPC Server: A remote procedure call (RPC) server is used to interact with Substrate nodes.
-
-There are several files in the `node` directory.
-Take special note of the following:
-
-- [`chain_spec.rs`](./node/src/chain_spec.rs): A [chain specification](https://docs.substrate.io/build/chain-spec/) is a source code file that defines a Substrate chain's initial (genesis) state.
-  Chain specifications are useful for development and testing, and critical when architecting the launch of a production chain.
-  Take note of the `development_config` and `testnet_genesis` functions,.
-  These functions are used to define the genesis state for the local development chain configuration.
-  These functions identify some [well-known accounts](https://docs.substrate.io/reference/command-line-tools/subkey/) and use them to configure the blockchain's initial state.
-- [`service.rs`](./node/src/service.rs): This file defines the node implementation.
-  Take note of the libraries that this file imports and the names of the functions it invokes.
-  In particular, there are references to consensus-related topics, such as the [block finalization and forks](https://docs.substrate.io/fundamentals/consensus/#finalization-and-forks) and other [consensus mechanisms](https://docs.substrate.io/fundamentals/consensus/#default-consensus-models) such as Aura for block authoring and GRANDPA for finality.
+![tests](./img/lesson04_03.png)
 
 
+## 第五节课作业
 
-### Runtime
+[https://github.com/jiyuan0125/oneblock_advanced_ink](https://github.com/jiyuan0125/oneblock_advanced_ink)
 
-In Substrate, the terms "runtime" and "state transition function" are analogous.
-Both terms refer to the core logic of the blockchain that is responsible for validating blocks and executing the state changes they define.
-The Substrate project in this repository uses [FRAME](https://docs.substrate.io/fundamentals/runtime-development/#frame) to construct a blockchain runtime.
-FRAME allows runtime developers to declare domain-specific logic in modules called "pallets".
-At the heart of FRAME is a helpful [macro language](https://docs.substrate.io/reference/frame-macros/) that makes it easy to create pallets and flexibly compose them to create blockchains that can address [a variety of needs](https://substrate.io/ecosystem/projects/).
+## 第六节课作业
 
-Review the [FRAME runtime implementation](./runtime/src/lib.rs) included in this template and note the following:
+### 作业
+* 为 proof of existence (poe) 模块的可调用函数 create_claim, revoke_claim, transfer_claim 添加 benchmark 用例，并且将 benchmark 运行的结果应用在可调用函数上；
+* 选择 node-template 或者其它节点程序，生成 Chain Spec 文件（两种格式都需要）；
+* （附加题）根据 Chain Spec，部署公开测试网络
 
-- This file configures several pallets to include in the runtime.
-  Each pallet configuration is defined by a code block that begins with `impl $PALLET_NAME::Config for Runtime`.
-- The pallets are composed into a single runtime by way of the [`construct_runtime!`](https://crates.parity.io/frame_support/macro.construct_runtime.html) macro, which is part of the core FRAME Support [system](https://docs.substrate.io/reference/frame-pallets/#system-pallets) library.
+### 答案：
+1. [pallets/poe/src/benchmarking.rs](./pallets/poe/src/benchmarking.rs)
+2. [nutsoft-staging.json](./nutsoft-staging.json) [nutsoft-staging-raw.json](./nutsoft-staging-raw.json)，生成chain spec的脚本在 [scripts](./scripts) 目录里
+3. 部署节点的脚本在 [scripts](./scripts) 目录里
 
-### Pallets
+**存在的问题：在这个4个验证人的网络里，我部署的节点无法同步区块，不知道是什么原因，所以无法验证部署的节点是否正常工作。**
+### 截图：
 
-The runtime in this project is constructed using many FRAME pallets that ship with the [core Substrate repository](https://github.com/paritytech/substrate/tree/master/frame) and a template pallet that is [defined in the `pallets`](./pallets/template/src/lib.rs) directory.
+![tests](./img/lesson06_01.png)
 
-A FRAME pallet is compromised of a number of blockchain primitives:
+![tests](./img/lesson06_02.png)
 
-- Storage: FRAME defines a rich set of powerful [storage abstractions](https://docs.substrate.io/build/runtime-storage/) that makes it easy to use Substrate's efficient key-value database to manage the evolving state of a blockchain.
-- Dispatchables: FRAME pallets define special types of functions that can be invoked (dispatched) from outside of the runtime in order to update its state.
-- Events: Substrate uses [events and errors](https://docs.substrate.io/build/events-and-errors/) to notify users of important changes in the runtime.
-- Errors: When a dispatchable fails, it returns an error.
-- Config: The `Config` configuration interface is used to define the types and parameters upon which a FRAME pallet depends.
+![tests](./img/lesson06_03.png)
 
-## Alternatives Installations
 
-Instead of installing dependencies and building this source directly, consider the following alternatives.
-
-### Nix
-
-Install [nix](https://nixos.org/), and optionally [direnv](https://github.com/direnv/direnv) and [lorri](https://github.com/nix-community/lorri) for a fully plug-and-play experience for setting up the development environment.
-To get all the correct dependencies, activate direnv `direnv allow` and lorri `lorri shell`.
-
-### Docker
-
-Please follow the [Substrate Docker instructions here](https://github.com/paritytech/substrate/blob/master/docker/README.md) to build the Docker container with the Substrate Node Template binary.
+![OneBlock+](./img/substrate.png)

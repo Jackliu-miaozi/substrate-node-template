@@ -14,12 +14,9 @@ mod tests;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 
-use sp_runtime::{offchain::storage::StorageValueRef, traits::Zero};
-
 #[frame_support::pallet]
 pub mod pallet {
-	use super::*;
-	use frame_support::{inherent::Vec, pallet_prelude::*};
+	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
 
 	#[pallet::pallet]
@@ -101,32 +98,6 @@ pub mod pallet {
 					Ok(())
 				},
 			}
-		}
-	}
-
-	#[pallet::hooks]
-	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {
-		fn offchain_worker(block_number: T::BlockNumber) {
-			log::info!("OCW ==> Hello World from offchain workers!: {:?}", block_number);
-				let key = Self::derive_key(block_number);
-				let val_ref = StorageValueRef::persistent(&key);
-				let value = 01u8;
-				log::info!("OCW ==> in odd block, value to write: {:?}", value);
-				val_ref.set(&value);
-			log::info!("OCW ==> Leave from offchain workers!: {:?}", block_number);
-		}
-	}
-
-	impl<T: Config> Pallet<T> {
-		#[deny(clippy::clone_double_ref)]
-		fn derive_key(block_number: T::BlockNumber) -> Vec<u8> {
-			block_number.using_encoded(|encoded_bn| {
-				b"node-template::storage::"
-					.iter()
-					.chain(encoded_bn)
-					.copied()
-					.collect::<Vec<u8>>()
-			})
 		}
 	}
 }
